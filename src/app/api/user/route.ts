@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+// Sử dụng đường dẫn tương đối chuẩn xác
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
 
@@ -7,18 +8,25 @@ export async function POST(req: Request) {
     await connectDB();
     const data = await req.json();
 
-    if (!data.pi_id) {
+    if (!data || !data.pi_id) {
       return NextResponse.json({ success: false, error: 'Thiếu ID Pi' }, { status: 400 });
     }
 
-    // Chúng ta thêm phần kiểm tra để TypeScript biết chắc chắn User.findOneAndUpdate là một hàm
-    if (typeof User.findOneAndUpdate !== 'function') {
-        throw new Error("Model User chưa được khởi tạo đúng cách.");
-    }
+    // Ép kiểu User sang 'any' để vượt qua lỗi TypeScript "not callable"
+    const UserModel = User as any;
 
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await UserModel.findOneAndUpdate(
       { pi_id: data.pi_id },
-      { $set: data },
+      { 
+        $set: {
+          display_name: data.display_name,
+          bio: data.bio,
+          avatar_url: data.avatar_url,
+          cover_url: data.cover_url,
+          socials: data.socials,
+          updatedAt: new Date()
+        } 
+      },
       { upsert: true, new: true }
     );
 
@@ -31,3 +39,4 @@ export async function POST(req: Request) {
     );
   }
 }
+
