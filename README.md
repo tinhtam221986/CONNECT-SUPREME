@@ -14,8 +14,7 @@
 ---
 
 ## 🤖 2. BOSS AI - THE SUPREME INTELLIGENCE
-Tại trung tâm của CONNECT là **Boss AI**, thực thể trí tuệ nhân tạo tối thượng điều phối toàn bộ hệ sinh thái:
-* **Tối ưu hóa Tọa độ:**
+Tại trung tâm của CONNECT là **Boss AI**, thực thể trí tuệ nhân tạo tối thượng điều phối toàn bộ hệ sinh thái.
 
 ---
 
