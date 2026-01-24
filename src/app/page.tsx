@@ -1,12 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-declare global {
-  interface Window { Pi: any; }
-}
+declare global { interface Window { Pi: any; } }
 
 export default function Home() {
-  const [status, setStatus] = useState("Đang khởi tạo hệ thống...");
+  const [status, setStatus] = useState("Đang kiểm tra hệ thống...");
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -22,83 +20,77 @@ export default function Home() {
   const initPi = async () => {
     try {
       await window.Pi.init({ version: "2.0", sandbox: false });
+      // Khi vừa vào App, kiểm tra xem có thanh toán nào bị kẹt không
       authenticate();
-    } catch (e) {
-      setStatus("Vui lòng mở bằng Pi Browser.");
-    }
+    } catch (e) { setStatus("Lỗi khởi tạo SDK."); }
   };
 
   const authenticate = async () => {
     try {
       const scopes = ['username', 'payments', 'wallet_address'];
-      const auth = await window.Pi.authenticate(scopes, (p: any) => console.log("Incomplete:", p));
+      // Hàm onIncompletePaymentFound sẽ xử lý các giao dịch bị báo "Error! Pending payment"
+      const auth = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
       setUser(auth.user);
-      setStatus("Sẵn sàng giao dịch Bước 10");
-    } catch (e) {
-      setStatus("Cần quyền truy cập từ Pi Browser.");
-    }
+      setStatus("Đã sẵn sàng!");
+    } catch (e) { setStatus("Cần mở trong Pi Browser."); }
   };
 
+  // QUAN TRỌNG: Hàm này giúp xử lý lỗi "Pending payment" của bạn
+  async function onIncompletePaymentFound(payment: any) {
+    setStatus("Đang xử lý giao dịch bị kẹt...");
+    try {
+      await fetch('/api/pi/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction.txid }),
+      });
+      setStatus("Đã giải phóng giao dịch treo! Hãy thử lại.");
+    } catch (err) {
+      console.error("Không thể giải phóng giao dịch:", err);
+    }
+  }
+
   const handlePayment = async () => {
-    setStatus("Đang khởi tạo thanh toán...");
-    
     const paymentData = {
       amount: 1,
-      memo: "Xác thực Bước 10 - CONNECT-SUPREME",
-      metadata: { orderId: "PRO-STEP-10" },
+      memo: "Xác thực Bước 10",
+      metadata: { orderId: "FIX-STEP-10" },
     };
 
     const callbacks = {
       onReadyForServerApproval: async (paymentId: string) => {
-        setStatus("Đang chờ Server phê duyệt...");
-        try {
-          const res = await fetch('/api/pi/approve', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId }),
-          });
-          if (res.ok) {
-            setStatus("Server đã duyệt! Hãy nhập mật khẩu ví.");
-          } else {
-            setStatus("Server từ chối. Kiểm tra API Key trên Vercel.");
-          }
-        } catch (err) {
-          setStatus("Lỗi kết nối Server.");
-        }
+        await fetch('/api/pi/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId }),
+        });
       },
-      onReadyForServerCompletion: (paymentId: string, txid: string) => {
-        console.log("Hoàn tất TxID:", txid);
-        setStatus("THÀNH CÔNG! Quay lại Checklist.");
-        alert("Giao dịch hoàn tất! TxID: " + txid);
+      onReadyForServerCompletion: async (paymentId: string, txid: string) => {
+        setStatus("Đang hoàn tất...");
+        await fetch('/api/pi/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId, txid }),
+        });
+        setStatus("THÀNH CÔNG! Check Bước 10 ngay.");
       },
-      onCancel: (paymentId: string) => setStatus("Giao dịch đã hủy."),
-      onError: (error: Error) => setStatus("Lỗi: " + error.message),
+      onCancel: (pId: string) => setStatus("Đã hủy."),
+      onError: (err: Error) => setStatus("Lỗi: " + err.message),
     };
-
     window.Pi.createPayment(paymentData, callbacks);
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-black text-white text-center">
-      <h1 className="text-3xl font-bold mb-8 text-yellow-500">CONNECT-PI-SUPREME</h1>
-      <div className="p-8 border-2 border-yellow-600/30 rounded-2xl bg-gray-900 shadow-xl max-w-sm w-full">
-        <p className="mb-6 text-gray-300">{status}</p>
+      <h1 className="text-2xl font-bold mb-6 text-yellow-500">CONNECT-PI-SUPREME</h1>
+      <div className="p-6 border border-yellow-600/20 rounded-xl bg-gray-900 w-full max-w-xs">
+        <p className="mb-4 text-sm">{status}</p>
         {user && (
-          <div className="space-y-4">
-            <div className="bg-gray-800 p-3 rounded border border-gray-700">
-              <p className="text-xs text-yellow-500">Pioneer</p>
-              <p className="font-bold">@{user.username}</p>
-            </div>
-            <button 
-              onClick={handlePayment}
-              className="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-black py-4 rounded-xl transition-transform active:scale-95"
-            >
-              THANH TOÁN 1 PI
-            </button>
-          </div>
+          <button onClick={handlePayment} className="w-full bg-yellow-600 p-3 rounded-lg font-bold">
+            THANH TOÁN LẠI 1 PI
+          </button>
         )}
       </div>
-      <footer className="mt-8 text-gray-600 text-[10px]">Version 1.0.2 - API Standard</footer>
     </main>
   );
 }
