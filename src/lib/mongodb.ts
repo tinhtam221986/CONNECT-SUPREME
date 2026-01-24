@@ -6,6 +6,10 @@ if (!MONGODB_URI) {
   throw new Error('Vui lòng định nghĩa biến MONGODB_URI trong Environment Variables');
 }
 
+/**
+ * Global là cách để duy trì kết nối trong môi trường phát triển (HMR)
+ * giúp không bị tạo hàng trăm kết nối dư thừa tới MongoDB.
+ */
 let cached = (global as any).mongoose;
 
 if (!cached) {
@@ -13,14 +17,29 @@ if (!cached) {
 }
 
 async function connectDB() {
-  if (cached.conn) return cached.conn;
+  if (cached.conn) {
+    return cached.conn;
+  }
 
   if (!cached.promise) {
-    cached.promise = mongoose.customConnect(MONGODB_URI!, {
+    const opts = {
       bufferCommands: false,
-    }).then((mongoose) => mongoose);
+    };
+
+    // Sửa lỗi: Sử dụng mongoose.connect thay vì customConnect
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+      console.log("✅ Đã kết nối thành công tới MongoDB");
+      return mongoose;
+    });
   }
-  cached.conn = await cached.promise;
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
   return cached.conn;
 }
 
