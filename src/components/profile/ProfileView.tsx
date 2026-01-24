@@ -5,15 +5,13 @@ export default function ProfileView({ user }: { user: any }) {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // State quản lý thông tin Profile
   const [profile, setProfile] = useState({
     displayName: user.display_name || "Pioneer Mới",
     bio: user.bio || "Chào mừng bạn đến với CONNECT-SUPREME!",
-    avatar: user.image || "/default-avatar.png",
-    cover: "/default-cover.jpg"
+    avatar: user.image || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+    cover: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000"
   });
 
-  // HÀM LƯU THÔNG TIN VÀO MONGODB 🚀
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -21,134 +19,73 @@ export default function ProfileView({ user }: { user: any }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pi_id: user.username, 
+          pi_id: user.username,
           display_name: profile.displayName,
           bio: profile.bio,
-          avatar_url: profile.avatar,
-          cover_url: profile.cover
         }),
       });
 
       const result = await response.json();
       if (result.success) {
-        alert("✅ Báo cáo sếp: Đã lưu thông tin thành công! 🫡");
+        alert("✅ Báo cáo sếp: Đã thông mạch dữ liệu! 🫡");
         setIsEditing(false);
       } else {
-        alert("❌ Lỗi từ hệ thống: " + result.error);
+        alert("❌ Vẫn còn lỗi: " + result.error);
       }
     } catch (error) {
-      console.error("Lỗi kết nối:", error);
-      alert("❌ Lỗi kết nối server, vui lòng thử lại.");
+      alert("❌ Lỗi kết nối server.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24 font-sans">
-      {/* 📸 ẢNH BÌA */}
-      <div className="relative h-60 w-full group overflow-hidden bg-gray-900">
-        <img src={profile.cover} className="w-full h-full object-cover opacity-70" />
-        <div className="absolute top-4 right-4 flex gap-3">
-          <button className="p-2 bg-black/40 backdrop-blur-md rounded-full border border-white/20">🔔</button>
-          <button className="p-2 bg-black/40 backdrop-blur-md rounded-full border border-white/20">⚙️</button>
-        </div>
+    <div style={{ backgroundColor: '#000', color: '#fff', minHeight: '100vh', fontFamily: 'sans-serif', paddingBottom: '80px' }}>
+      {/* HEADER ẢNH BÌA */}
+      <div style={{ position: 'relative', height: '200px', background: `url(${profile.cover}) center/cover` }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)' }}></div>
       </div>
 
-      {/* 👤 AVATAR & THÔNG TIN CHÍNH */}
-      <div className="px-6 -mt-12 relative flex flex-col items-start">
-        <div className="relative group">
-          <img src={profile.avatar} className="w-28 h-28 rounded-3xl border-4 border-black object-cover shadow-2xl" />
-          <div className="absolute bottom-2 right-2 bg-yellow-500 p-2 rounded-xl border-2 border-black cursor-pointer shadow-lg hover:scale-110 transition-transform">
-            📸
-          </div>
-        </div>
-
-        <div className="mt-4 w-full">
+      {/* THÔNG TIN CÁ NHÂN */}
+      <div style={{ padding: '0 20px', marginTop: '-50px', position: 'relative' }}>
+        <img src={profile.avatar} style={{ width: '100px', height: '100px', borderRadius: '25px', border: '4px solid #000', backgroundColor: '#222' }} />
+        
+        <div style={{ marginTop: '15px' }}>
           {isEditing ? (
-            <div className="flex flex-col gap-3 w-full bg-gray-900/50 p-4 rounded-2xl border border-yellow-500/30">
-              <label className="text-yellow-500 text-[10px] font-bold uppercase">Tên hiển thị tùy chỉnh</label>
+            <div style={{ background: '#111', padding: '15px', borderRadius: '15px', border: '1px solid #eab308' }}>
+              <p style={{ color: '#eab308', fontSize: '10px', fontWeight: 'bold' }}>TÊN HIỂN THỊ</p>
               <input 
-                autoFocus
-                className="bg-transparent border-b border-yellow-500 text-2xl font-black w-full outline-none pb-1"
+                style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #eab308', color: '#fff', width: '100%', fontSize: '20px', outline: 'none' }}
                 value={profile.displayName}
                 onChange={(e) => setProfile({...profile, displayName: e.target.value})}
               />
-              <label className="text-yellow-500 text-[10px] font-bold uppercase mt-2">Tiểu sử cá nhân</label>
+              <p style={{ color: '#eab308', fontSize: '10px', fontWeight: 'bold', marginTop: '15px' }}>TIỂU SỬ</p>
               <input 
-                className="bg-transparent border-b border-gray-700 text-sm w-full outline-none pb-1"
+                style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #333', color: '#ccc', width: '100%', outline: 'none' }}
                 value={profile.bio}
                 onChange={(e) => setProfile({...profile, bio: e.target.value})}
               />
-              <div className="flex gap-2 mt-4">
-                <button 
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="bg-yellow-500 text-black px-6 py-2 rounded-xl font-bold text-sm hover:bg-yellow-400 transition-all flex-1"
-                >
-                  {loading ? "ĐANG LƯU..." : "XÁC NHẬN LƯU 🫡"}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button onClick={handleSave} style={{ flex: 1, padding: '10px', background: '#eab308', color: '#000', borderRadius: '10px', fontWeight: 'bold', border: 'none' }}>
+                  {loading ? 'ĐANG LƯU...' : 'LƯU LẠI 🫡'}
                 </button>
-                <button 
-                  onClick={() => setIsEditing(false)}
-                  className="bg-gray-800 text-white px-6 py-2 rounded-xl font-bold text-sm flex-1"
-                >
-                  HỦY
-                </button>
+                <button onClick={() => setIsEditing(false)} style={{ flex: 1, padding: '10px', background: '#333', color: '#fff', borderRadius: '10px', border: 'none' }}>HỦY</button>
               </div>
             </div>
           ) : (
-            <div className="flex justify-between items-start w-full">
-              <div>
-                <h2 className="text-3xl font-black tracking-tighter" onClick={() => setIsEditing(true)}>
-                  {profile.displayName} <span className="text-xs opacity-40 ml-2">✏️</span>
-                </h2>
-                <p className="text-yellow-500 font-bold">@{user.username} <span className="text-[10px] bg-yellow-500/10 border border-yellow-500/50 px-1 rounded ml-1">✅ Verified</span></p>
-                <p className="text-gray-400 text-sm mt-2">{profile.bio}</p>
-              </div>
-            </div>
+            <>
+              <h1 style={{ fontSize: '28px', margin: 0 }}>{profile.displayName} <span onClick={() => setIsEditing(true)} style={{ fontSize: '16px', cursor: 'pointer' }}>✏️</span></h1>
+              <p style={{ color: '#eab308', margin: '5px 0' }}>@{user.username} ✅ Pioneer</p>
+              <p style={{ color: '#888', fontSize: '14px' }}>{profile.bio}</p>
+            </>
           )}
         </div>
       </div>
 
-      {/* 📊 CHỈ SỐ UY TÍN */}
-      <div className="flex gap-8 px-6 mt-6 border-y border-gray-900 py-4">
-        <div className="text-center"><p className="text-lg font-black">0</p><p className="text-[10px] text-gray-500 uppercase tracking-widest">Bạn bè</p></div>
-        <div className="text-center"><p className="text-lg font-black">0</p><p className="text-[10px] text-gray-500 uppercase tracking-widest">Người theo dõi</p></div>
-        <div className="text-center"><p className="text-lg font-black">0</p><p className="text-[10px] text-gray-500 uppercase tracking-widest">Đang theo dõi</p></div>
+      {/* NAVIGATION DƯỚI CÙNG */}
+      <div style={{ position: 'fixed', bottom: 0, width: '100%', display: 'flex', justifyContent: 'space-around', padding: '15px 0', background: 'rgba(0,0,0,0.9)', borderTop: '1px solid #222' }}>
+        <span>🏠</span> <span>🎬</span> <span style={{ background: '#ca8a04', padding: '5px 15px', borderRadius: '10px' }}>＋</span> <span>💬</span> <span>👤</span>
       </div>
-
-      {/* 🔗 SOCIAL CONNECT */}
-      <div className="px-6 mt-6 flex gap-3 overflow-x-auto no-scrollbar">
-        {['Facebook', 'TikTok', 'YouTube', 'X'].map(social => (
-          <button key={social} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold whitespace-nowrap">
-            ＋ {social}
-          </button>
-        ))}
-      </div>
-
-      {/* 🏷️ TABS NỘI DUNG */}
-      <div className="mt-8 grid grid-cols-3 border-t border-gray-900 sticky top-0 bg-black/90 backdrop-blur-md z-10">
-        {['Video', 'Sản phẩm', 'Giỏ hàng'].map((tab, i) => (
-          <button key={tab} className={`py-4 text-xs font-black uppercase tracking-widest ${i === 0 ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-gray-500'}`}>
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-3 gap-0.5 mt-1">
-        {[1,2,3].map(i => (
-          <div key={i} className="aspect-[9/16] bg-gray-900 animate-pulse flex items-center justify-center text-[10px] text-gray-800">Trống</div>
-        ))}
-      </div>
-
-      {/* ⚓ NAVIGATION DƯỚI CÙNG */}
-      <nav className="fixed bottom-0 w-full bg-black/90 backdrop-blur-2xl border-t border-gray-900 flex justify-around items-center py-4 px-2 z-50">
-        <button className="text-xl opacity-40">🏠</button>
-        <button className="text-xl opacity-40">🎬</button>
-        <button className="w-14 h-10 bg-yellow-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">＋</button>
-        <button className="text-xl opacity-40">💬</button>
-        <button className="text-xl border-b-2 border-yellow-500 pb-1">👤</button>
-      </nav>
     </div>
   );
-      }
+                   }
