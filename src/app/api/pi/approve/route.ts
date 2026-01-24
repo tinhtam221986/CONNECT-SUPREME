@@ -1,21 +1,33 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
 
 export async function POST(request: Request) {
   try {
     const { paymentId } = await request.json();
     const apiKey = process.env.PI_API_KEY;
 
-    // Gọi API của Pi Network để xác nhận phê duyệt giao dịch này
-    await axios.post(
-      `https://api.minepi.com/v2/payments/${paymentId}/approve`,
-      {},
-      { headers: { Authorization: `Key ${apiKey}` } }
-    );
+    if (!apiKey) {
+      console.error("Thiếu PI_API_KEY trong biến môi trường");
+      return NextResponse.json({ error: "Cấu hình Server lỗi" }, { status: 500 });
+    }
+
+    // Sử dụng fetch mặc định của Next.js để không bị lỗi thiếu thư viện axios
+    const response = await fetch(`https://api.minepi.com/v2/payments/${paymentId}/approve`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${apiKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Pi API Error:", errorData);
+      return NextResponse.json({ error: "Pi Network từ chối phê duyệt" }, { status: 400 });
+    }
 
     return NextResponse.json({ message: "Approved" }, { status: 200 });
   } catch (error: any) {
-    console.error("Lỗi xác thực Backend:", error.response?.data || error.message);
-    return NextResponse.json({ error: "Xác thực thất bại" }, { status: 500 });
+    console.error("Lỗi Server:", error.message);
+    return NextResponse.json({ error: "Lỗi hệ thống nội bộ" }, { status: 500 });
   }
 }
