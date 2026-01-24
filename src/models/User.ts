@@ -1,7 +1,6 @@
-// src/models/User.ts
-import mongoose from 'mongoose';
+import mongoose, { Schema, model, models } from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   pi_id: { type: String, required: true, unique: true },
   display_name: { type: String, default: "" },
   avatar_url: { type: String, default: "" },
@@ -15,4 +14,6 @@ const UserSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+// Cách xuất model an toàn tuyệt đối cho Next.js
+const User = models.User || model('User', UserSchema);
+export default User;
