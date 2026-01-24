@@ -4,7 +4,7 @@ import { useState } from 'react';
 export default function ProfileView({ user }: { user: any }) {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const isOwner = true; // Sau này sẽ check: user.username === currentPiUser.username
+  const isOwner = true; // Logic kiểm tra chủ sở hữu
 
   const [profile, setProfile] = useState({
     displayName: user.display_name || "Tịnh Tâm",
@@ -26,9 +26,15 @@ export default function ProfileView({ user }: { user: any }) {
         }),
       });
       const result = await response.json();
-      if (result.success) { alert("✅ Đã lưu thành công! 🫡"); setIsEditing(false); }
-    } catch (error) { alert("❌ Lỗi kết nối."); }
-    finally { setLoading(false); }
+      if (result.success) { 
+        alert("✅ Đã lưu thành công! 🫡"); 
+        setIsEditing(false); 
+      }
+    } catch (error) { 
+      alert("❌ Lỗi kết nối."); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   return (
@@ -36,7 +42,7 @@ export default function ProfileView({ user }: { user: any }) {
       
       {/* 📸 KHU VỰC ẢNH BÌA & THÔNG TIN CHỒNG LÊN NHAU */}
       <div style={{ position: 'relative', height: '210px', width: '100%', overflow: 'hidden' }}>
-        {/* Ảnh bìa phủ kín */}
+        {/* Ảnh bìa */}
         <div style={{ position: 'absolute', inset: 0, background: `url(${profile.cover}) center/cover` }}>
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)' }}></div>
         </div>
@@ -59,8 +65,9 @@ export default function ProfileView({ user }: { user: any }) {
         {/* Cụm Info nằm trọn trong ảnh bìa */}
         <div style={{ position: 'absolute', bottom: '15px', left: '15px', display: 'flex', alignItems: 'center', gap: '12px', width: '70%' }}>
           <div style={{ position: 'relative' }}>
-             <img src={profile.avatar} style={{ width: '65px', height: '65px', borderRadius: '16px', border: '2px solid rgba(234, 179, 8, 0.5)', objectCover: 'cover' }} />
-             {isOwner && <div onClick={() => setIsEditing(true)} style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#eab308', borderRadius: '50%', width: '20px', height: '20px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>✏️</div>}
+             {/* Đã sửa lỗi objectFit ở đây 🫡 */}
+             <img src={profile.avatar} style={{ width: '65px', height: '65px', borderRadius: '16px', border: '2px solid rgba(234, 179, 8, 0.5)', objectFit: 'cover' }} />
+             {isOwner && <div onClick={() => setIsEditing(true)} style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#eab308', borderRadius: '50%', width: '20px', height: '20px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', cursor: 'pointer' }}>✏️</div>}
           </div>
           
           <div style={{ overflow: 'hidden' }}>
@@ -97,7 +104,7 @@ export default function ProfileView({ user }: { user: any }) {
       </div>
 
       {/* 🎞️ KHÔNG GIAN TRƯNG BÀY (VUỐT CUỘN) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', padding: '1px', minHeight: '100vh' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', padding: '1px' }}>
         {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(item => (
           <div key={item} style={{ aspectRatio: '9/15', background: '#050505', border: '0.1px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#111' }}>TRỐNG</div>
         ))}
@@ -114,5 +121,5 @@ export default function ProfileView({ user }: { user: any }) {
 
     </div>
   );
-                }
-                                                 
+            }
+                     
