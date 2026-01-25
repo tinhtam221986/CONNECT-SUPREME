@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Thiếu ID người dùng" }, { status: 400 });
     }
 
-    // Ép kiểu (User as any) để vượt qua lỗi TypeScript kiểm tra signature
+    // ⚡ CHIÊU THỨC QUAN TRỌNG: Ép kiểu 'as any' để vượt qua bộ lọc Vercel
     const updatedUser = await (User as any).findOneAndUpdate(
       { pi_id: pi_id },
       { 
