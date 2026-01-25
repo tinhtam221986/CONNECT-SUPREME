@@ -4,7 +4,7 @@ import { useState } from 'react';
 export default function ProfileView({ user }: { user: any }) {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const isOwner = true; // Logic kiểm tra chủ sở hữu
+  const [activeTab, setActiveTab] = useState('Videos');
 
   const [profile, setProfile] = useState({
     displayName: user.display_name || "Tịnh Tâm",
@@ -13,6 +13,7 @@ export default function ProfileView({ user }: { user: any }) {
     cover: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000"
   });
 
+  // MẠCH MÁU: Gửi dữ liệu về MongoDB 🧠
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -27,99 +28,117 @@ export default function ProfileView({ user }: { user: any }) {
       });
       const result = await response.json();
       if (result.success) { 
-        alert("✅ Đã lưu thành công! 🫡"); 
+        alert("✅ Báo cáo sếp: Dữ liệu đã được khóa vào Database Atlas! 🫡");
         setIsEditing(false); 
       }
     } catch (error) { 
-      alert("❌ Lỗi kết nối."); 
+      alert("❌ Lỗi mạch dữ liệu, sếp kiểm tra lại kết nối MongoDB."); 
     } finally { 
       setLoading(false); 
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#000', color: '#fff', minHeight: '100vh', fontFamily: 'sans-serif', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: '#000', color: '#fff', minHeight: '100vh', fontFamily: 'sans-serif', paddingBottom: '90px' }}>
       
-      {/* 📸 KHU VỰC ẢNH BÌA & THÔNG TIN CHỒNG LÊN NHAU */}
+      {/* 📸 HEADER: ẢNH BÌA + CỤM INFO LỒNG GHÉP */}
       <div style={{ position: 'relative', height: '210px', width: '100%', overflow: 'hidden' }}>
-        {/* Ảnh bìa */}
         <div style={{ position: 'absolute', inset: 0, background: `url(${profile.cover}) center/cover` }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)' }}></div>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,1) 5%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)' }}></div>
         </div>
 
-        {/* Nút chức năng: Góc dưới bên phải ảnh bìa */}
+        {/* Nút Chuông & Cài đặt (Góc phải) */}
         <div style={{ position: 'absolute', bottom: '15px', right: '15px', display: 'flex', gap: '8px', zIndex: 10 }}>
-          {isOwner ? (
-            <>
-              <button style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '6px 10px', color: '#fff', fontSize: '14px' }}>🔔</button>
-              <button style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '6px 10px', color: '#fff', fontSize: '14px' }}>⚙️</button>
-            </>
-          ) : (
-            <>
-              <button style={{ background: '#eab308', color: '#000', border: 'none', borderRadius: '10px', padding: '8px 18px', fontWeight: 'bold', fontSize: '13px' }}>Theo dõi</button>
-              <button style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '13px' }}>Nhắn tin</button>
-            </>
-          )}
+          <button onClick={() => alert("Chức năng Thông báo đang được cấu hình...")} style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', padding: '8px 12px', color: '#fff', cursor: 'pointer' }}>🔔</button>
+          <button onClick={() => alert("Mở Cài đặt hệ thống...")} style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', padding: '8px 12px', color: '#fff', cursor: 'pointer' }}>⚙️</button>
         </div>
 
-        {/* Cụm Info nằm trọn trong ảnh bìa */}
-        <div style={{ position: 'absolute', bottom: '15px', left: '15px', display: 'flex', alignItems: 'center', gap: '12px', width: '70%' }}>
+        {/* Cụm Avatar & Tên (Góc trái) */}
+        <div style={{ position: 'absolute', bottom: '15px', left: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative' }}>
-             {/* Đã sửa lỗi objectFit ở đây 🫡 */}
-             <img src={profile.avatar} style={{ width: '65px', height: '65px', borderRadius: '16px', border: '2px solid rgba(234, 179, 8, 0.5)', objectFit: 'cover' }} />
-             {isOwner && <div onClick={() => setIsEditing(true)} style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#eab308', borderRadius: '50%', width: '20px', height: '20px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', cursor: 'pointer' }}>✏️</div>}
+             <img src={profile.avatar} style={{ width: '65px', height: '65px', borderRadius: '18px', border: '2px solid #eab308', objectFit: 'cover' }} />
+             <div onClick={() => setIsEditing(true)} style={{ position: 'absolute', bottom: '-5px', right: '-5px', background: '#eab308', borderRadius: '50%', width: '22px', height: '22px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', cursor: 'pointer', border: '2px solid #000' }}>✏️</div>
           </div>
           
-          <div style={{ overflow: 'hidden' }}>
+          <div>
             {isEditing ? (
               <input 
-                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #eab308', color: '#fff', borderRadius: '4px', fontSize: '14px', width: '100%', outline: 'none' }}
+                autoFocus
+                style={{ background: 'rgba(0,0,0,0.7)', border: '1px solid #eab308', color: '#fff', borderRadius: '4px', fontSize: '14px', width: '120px', outline: 'none', padding: '2px 5px' }}
                 value={profile.displayName}
                 onChange={(e) => setProfile({...profile, displayName: e.target.value})}
               />
             ) : (
-              <h1 style={{ fontSize: '17px', fontWeight: 'bold', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{profile.displayName}</h1>
+              <h1 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{profile.displayName}</h1>
             )}
-            <p style={{ color: '#eab308', fontSize: '11px', margin: '2px 0', opacity: 0.9 }}>@{user.username} <span style={{fontSize: '9px', background: 'rgba(234,179,8,0.2)', padding: '1px 4px', borderRadius: '4px'}}>Pioneer ✅</span></p>
+            <p style={{ color: '#eab308', fontSize: '11px', margin: '2px 0' }}>@{user.username} <span style={{fontSize: '9px', background: 'rgba(234,179,8,0.2)', padding: '1px 4px', borderRadius: '4px'}}>Pioneer ✅</span></p>
           </div>
         </div>
       </div>
 
-      {/* 📝 TIỂU SỬ & CHỈ SỐ (SIÊU GỌN) */}
+      {/* 📝 TIỂU SỬ & CHỈ SỐ */}
       <div style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #111' }}>
         <div style={{ flex: 1 }}>
-          <p style={{ color: '#888', fontSize: '11px', margin: 0, fontStyle: 'italic', maxWidth: '180px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile.bio}</p>
+          {isEditing ? (
+             <input 
+               style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #333', color: '#888', fontSize: '11px', width: '90%', outline: 'none' }}
+               value={profile.bio}
+               onChange={(e) => setProfile({...profile, bio: e.target.value})}
+             />
+          ) : (
+            <p style={{ color: '#888', fontSize: '11px', margin: 0, fontStyle: 'italic' }}>{profile.bio}</p>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: '12px', fontSize: '11px' }}>
-          <div style={{ textAlign: 'center' }}><span style={{ fontWeight: 'bold' }}>1.2K</span> <span style={{ color: '#555' }}>Bạn</span></div>
-          <div style={{ textAlign: 'center' }}><span style={{ fontWeight: 'bold' }}>45K</span> <span style={{ color: '#555' }}>Follow</span></div>
+        <div style={{ display: 'flex', gap: '15px', fontSize: '11px' }}>
+          <span><strong>1.2K</strong> Bạn</span>
+          <span><strong>45K</strong> Follow</span>
         </div>
       </div>
 
-      {/* 🏷️ TABS NỘI DUNG */}
-      <div style={{ position: 'sticky', top: 0, display: 'flex', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', zIndex: 20 }}>
-        {['Videos', 'Cửa hàng', 'Bộ sưu tập'].map((tab, i) => (
-          <div key={tab} style={{ flex: 1, textAlign: 'center', padding: '12px 0', fontSize: '12px', fontWeight: 'bold', color: i === 0 ? '#eab308' : '#555', borderBottom: i === 0 ? '2px solid #eab308' : 'none' }}>{tab}</div>
+      {/* NÚT LƯU KHI ĐANG EDIT */}
+      {isEditing && (
+        <div style={{ padding: '10px 15px', display: 'flex', gap: '10px' }}>
+          <button onClick={handleSave} style={{ flex: 2, background: '#eab308', color: '#000', border: 'none', borderRadius: '8px', padding: '8px', fontWeight: 'bold', fontSize: '12px' }}>{loading ? 'ĐANG LƯU...' : 'XÁC NHẬN LƯU DỮ LIỆU'}</button>
+          <button onClick={() => setIsEditing(false)} style={{ flex: 1, background: '#222', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px', fontSize: '12px' }}>HỦY</button>
+        </div>
+      )}
+
+      {/* 🏷️ TABS NAVIGATION */}
+      <div style={{ position: 'sticky', top: 0, display: 'flex', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', z.Index: 20 }}>
+        {['Videos', 'Cửa hàng', 'Bộ sưu tập'].map((tab) => (
+          <div 
+            key={tab} 
+            onClick={() => setActiveTab(tab)}
+            style={{ 
+              flex: 1, textAlign: 'center', padding: '15px 0', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+              color: activeTab === tab ? '#eab308' : '#555',
+              borderBottom: activeTab === tab ? '2px solid #eab308' : 'none' 
+            }}
+          >
+            {tab}
+          </div>
         ))}
       </div>
 
-      {/* 🎞️ KHÔNG GIAN TRƯNG BÀY (VUỐT CUỘN) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', padding: '1px' }}>
-        {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(item => (
-          <div key={item} style={{ aspectRatio: '9/15', background: '#050505', border: '0.1px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#111' }}>TRỐNG</div>
+      {/* 🎞️ KHÔNG GIAN TRƯNG BÀY GRID */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', padding: '1px', minHeight: '60vh' }}>
+        {[1,2,3,4,5,6,9].map(item => (
+          <div key={item} style={{ aspectRatio: '9/15', background: '#050505', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#111' }}>
+            {activeTab === 'Videos' ? '🎬 TRỐNG' : activeTab === 'Cửa hàng' ? '🛍️ TRỐNG' : '📂 TRỐNG'}
+          </div>
         ))}
       </div>
 
-      {/* ⚓ BOTTOM NAV */}
-      <div style={{ position: 'fixed', bottom: 0, width: '100%', display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '10px 0 20px 0', background: 'rgba(0,0,0,0.95)', borderTop: '1px solid #111', zIndex: 100 }}>
+      {/* ⚓ NAVIGATION CHÍNH (CỐ ĐỊNH) */}
+      <div style={{ position: 'fixed', bottom: 0, width: '100%', display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '10px 0 25px 0', background: 'rgba(0,0,0,0.95)', borderTop: '1px solid #111', zIndex: 100 }}>
         <span style={{ fontSize: '20px', opacity: 0.4 }}>🏠</span>
         <span style={{ fontSize: '20px', opacity: 0.4 }}>🎬</span>
-        <div style={{ background: 'linear-gradient(45deg, #ca8a04, #eab308)', width: '45px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 'bold', fontSize: '20px' }}>＋</div>
+        <div style={{ background: 'linear-gradient(45deg, #ca8a04, #eab308)', width: '50px', height: '35px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 'bold', fontSize: '22px' }}>＋</div>
         <span style={{ fontSize: '20px', opacity: 0.4 }}>💬</span>
-        <span style={{ fontSize: '20px', borderBottom: '2px solid #eab308' }}>👤</span>
+        <span style={{ fontSize: '20px', borderBottom: '2px solid #eab308', paddingBottom: '2px' }}>👤</span>
       </div>
 
     </div>
   );
             }
-                     
+        
