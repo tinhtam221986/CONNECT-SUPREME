@@ -1,42 +1,23 @@
 import { NextResponse } from 'next/server';
-// Sử dụng đường dẫn tương đối chuẩn xác
-import connectDB from '../../../lib/mongodb';
-import User from '../../../models/User';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
     await connectDB();
-    const data = await req.json();
+    const body = await request.json();
+    const { pi_id, display_name, bio } = body;
 
-    if (!data || !data.pi_id) {
-      return NextResponse.json({ success: false, error: 'Thiếu ID Pi' }, { status: 400 });
-    }
-
-    // Ép kiểu User sang 'any' để vượt qua lỗi TypeScript "not callable"
-    const UserModel = User as any;
-
-    const updatedUser = await UserModel.findOneAndUpdate(
-      { pi_id: data.pi_id },
-      { 
-        $set: {
-          display_name: data.display_name,
-          bio: data.bio,
-          avatar_url: data.avatar_url,
-          cover_url: data.cover_url,
-          socials: data.socials,
-          updatedAt: new Date()
-        } 
-      },
-      { upsert: true, new: true }
+    // Tìm và cập nhật, nếu chưa có thì tạo mới
+    const updatedUser = await User.findOneAndUpdate(
+      { pi_id: pi_id },
+      { $set: { display_name, bio, updatedAt: new Date() } },
+      { new: true, upsert: true }
     );
 
-    return NextResponse.json({ success: true, user: updatedUser });
+    return NextResponse.json({ success: true, data: updatedUser });
   } catch (error: any) {
-    console.error("Lỗi API User:", error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Lỗi xử lý dữ liệu' }, 
-      { status: 500 }
-    );
+    console.error("Lỗi API:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-
