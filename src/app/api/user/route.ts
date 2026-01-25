@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-// Sử dụng đường dẫn tương đối để đảm bảo Vercel tìm thấy file
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
 
@@ -13,8 +12,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Thiếu ID người dùng" }, { status: 400 });
     }
 
-    // Tìm và cập nhật theo pi_id
-    const updatedUser = await User.findOneAndUpdate(
+    // Ép kiểu (User as any) để vượt qua lỗi TypeScript kiểm tra signature
+    const updatedUser = await (User as any).findOneAndUpdate(
       { pi_id: pi_id },
       { 
         $set: { 
@@ -23,7 +22,7 @@ export async function POST(request: Request) {
           updatedAt: new Date() 
         } 
       },
-      { new: true, upsert: true } // Nếu chưa có thì tạo mới
+      { new: true, upsert: true }
     );
 
     return NextResponse.json({ success: true, data: updatedUser });
