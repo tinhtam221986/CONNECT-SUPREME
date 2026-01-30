@@ -12,9 +12,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Missing username" }, { status: 400 });
     }
 
-    // Cập nhật hoặc tạo mới dựa trên username
-    const updatedUser = await User.findOneAndUpdate(
-      { username },
+    // Kỹ thuật (User as any): Ép kiểu để vượt qua lỗi TypeScript tại dòng 16
+    const updatedUser = await (User as any).findOneAndUpdate(
+      { username: username },
       { 
         $set: { 
           ...(display_name && { display_name }),
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
           ...(cover_url && { cover_url })
         } 
       },
-      { new: true, upsert: true }
+      { new: true, upsert: true, runValidators: true }
     );
 
     return NextResponse.json({ success: true, user: updatedUser });
