@@ -6,28 +6,30 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     const data = await request.json();
-    const { pi_id, display_name, bio, avatar_url, cover_url } = data;
+    
+    // Chỉ lấy những gì Schema cho phép: username, display_name, bio, avatar_url, cover_url
+    const { username, display_name, bio, avatar_url, cover_url } = data;
 
-    // Log này sếp có thể xem trong Vercel Dashboard > Logs
-    console.log("Hệ thống nhận lệnh từ sếp:", pi_id);
+    if (!username) {
+      return NextResponse.json({ success: false, error: "Thiếu Username" }, { status: 400 });
+    }
 
-    // Cưỡng chế cập nhật: Thử tìm theo username HOẶC pi_id
-    const updateResult = await (User as any).findOneAndUpdate(
-      { $or: [{ username: pi_id }, { piUid: pi_id }, { pi_id: pi_id }] },
+    const updatedUser = await (User as any).findOneAndUpdate(
+      { username: username }, 
       { 
         $set: { 
-          username: pi_id,
-          display_name,
-          bio,
+          ...(display_name && { display_name }),
+          ...(bio && { bio }),
           ...(avatar_url && { avatar_url }),
           ...(cover_url && { cover_url })
         } 
       },
-      { upsert: true, new: true }
+      { new: true, upsert: true }
     );
 
-    return NextResponse.json({ success: true, data: updateResult });
+    return NextResponse.json({ success: true, data: updatedUser });
   } catch (error: any) {
+    console.error("Lỗi API:", error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
