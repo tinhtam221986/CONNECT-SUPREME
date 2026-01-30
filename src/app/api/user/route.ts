@@ -8,9 +8,13 @@ export async function POST(request: Request) {
     const data = await request.json();
     const { pi_id, display_name, bio, avatar_url, cover_url } = data;
 
-    // Tìm theo username (ví dụ: DANG21986) và cập nhật hoặc tạo mới
-    const updatedUser = await User.findOneAndUpdate(
-      { username: pi_id }, 
+    if (!pi_id) {
+      return NextResponse.json({ success: false, error: "Thiếu ID" }, { status: 400 });
+    }
+
+    // Sử dụng updateOne để né lỗi ép kiểu của TypeScript
+    await (User as any).updateOne(
+      { username: pi_id },
       { 
         $set: { 
           ...(display_name && { display_name }),
@@ -19,10 +23,10 @@ export async function POST(request: Request) {
           ...(cover_url && { cover_url })
         } 
       },
-      { new: true, upsert: true }
+      { upsert: true }
     );
 
-    return NextResponse.json({ success: true, user: updatedUser });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Lỗi API User:", error);
     return NextResponse.json({ success: false, error: "Lỗi lưu DB" }, { status: 500 });
