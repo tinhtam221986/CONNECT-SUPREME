@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 const s3Client = new S3Client({
   region: "auto",
-  endpoint: process.env.R2_ENDPOINT!,
+  endpoint: process.env.R2_ENDPOINT || "",
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
   },
 });
 
@@ -14,10 +14,13 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
+
+    if (!file) {
+      return NextResponse.json({ error: "Sếp chưa chọn file ảnh!" }, { status: 400 });
+    }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name}`;
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
 
     await s3Client.send(new PutObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME,
@@ -27,8 +30,9 @@ export async function POST(request: Request) {
     }));
 
     const publicUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({ url: publicUrl, success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    console.error("Lỗi Upload R2:", error);
+    return NextResponse.json({ error: "Lỗi mạch máu R2" }, { status: 500 });
   }
 }
