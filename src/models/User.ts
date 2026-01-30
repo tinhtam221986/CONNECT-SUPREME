@@ -9,7 +9,7 @@ const UserSchema = new Schema({
   piUid: { type: String },
 }, { 
   timestamps: true,
-  strict: false // Tạm thời để false để tránh lỗi "Path not in schema" khi sếp cập nhật thêm trường mới
+  strict: false // Cho phép lưu các trường linh hoạt
 });
 
 export default models.User || model('User', UserSchema);
