@@ -15,7 +15,6 @@ export default function ProfileView({ user }: { user: any }) {
     cover: user?.cover_url || "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000",
   });
 
-  // HÀM LƯU CHUẨN: Dùng 'username' để khớp với API và Database
   const handleSaveInfo = async () => {
     setLoading(true);
     try {
@@ -64,7 +63,6 @@ export default function ProfileView({ user }: { user: any }) {
 
   return (
     <div style={{ backgroundColor: '#000', color: '#fff', minHeight: '100vh', paddingBottom: '120px' }}>
-      {/* 1. KHU VỰC COVER & AVATAR */}
       <div style={{ position: 'relative', height: '180px' }}>
         <div onClick={() => {setDrawerTarget('cover'); setMenuType('DRAWER');}} style={{ position: 'absolute', inset: 0, background: `url(${profile.cover}) center/cover`, cursor: 'pointer' }}>
            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #000 15%, transparent 85%)' }}></div>
@@ -90,7 +88,6 @@ export default function ProfileView({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* 2. THÔNG TIN CHI TIẾT */}
       <div style={{ padding: '15px' }}>
         <p style={{ color: '#bbb', fontSize: '14px', marginBottom: '15px' }}>{profile.bio}</p>
         <div style={{ display: 'flex', gap: '20px', fontSize: '12px' }}>
@@ -100,7 +97,6 @@ export default function ProfileView({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* 3. TABS MENU ĐẦY ĐỦ (ĐÃ KHÔI PHỤC) */}
       <div style={{ display: 'flex', borderBottom: '1px solid #222', marginTop: '10px' }}>
         {['Videos', 'Cửa hàng', 'Bộ sưu tập'].map(tab => (
           <div key={tab} onClick={() => setActiveTab(tab)} style={{ 
@@ -111,7 +107,6 @@ export default function ProfileView({ user }: { user: any }) {
         ))}
       </div>
 
-      {/* 4. NỘI DUNG TRỐNG (NHƯ ẢNH SẾP GỬI) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', marginTop: '1px' }}>
         {[1,2,3,4,5,6].map(i => (
           <div key={i} style={{ aspectRatio: '9/16', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333', fontSize: '12px' }}>TRỐNG</div>
@@ -120,9 +115,9 @@ export default function ProfileView({ user }: { user: any }) {
 
       <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
 
-      {/* OVERLAY MODALS */}
+      {/* ĐÃ SỬA LỖI z_index TẠI ĐÂY */}
       {menuType !== 'NONE' && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', z_index: 100, display: 'flex', alignItems: menuType === 'DRAWER' ? 'flex-end' : 'center', justifyContent: 'center', zIndex: 999 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: menuType === 'DRAWER' ? 'flex-end' : 'center', justifyContent: 'center', zIndex: 999 }}>
           <div style={{ width: '100%', maxWidth: '400px', background: '#111', padding: '20px', borderRadius: menuType === 'DRAWER' ? '20px 20px 0 0' : '15px', border: '1px solid #222' }}>
             {menuType === 'DRAWER' ? (
               <>
@@ -146,8 +141,8 @@ export default function ProfileView({ user }: { user: any }) {
     </div>
   );
 }
-const circleBtn = { background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '35px', height: '35px', color: '#fff' };
-const menuBtn = { width: '100%', textAlign: 'left' as const, background: '#1a1a1a', border: '1px solid #333', padding: '12px', borderRadius: '10px', color: '#fff', marginBottom: '8px' };
-const inputSty = { width: '100%', background: '#000', border: '1px solid #333', padding: '12px', color: '#fff', borderRadius: '10px' };
-const saveBtn = { background: '#eab308', color: '#000', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold' as const };
-                            
+const circleBtn: any = { background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '35px', height: '35px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const menuBtn: any = { width: '100%', textAlign: 'left', background: '#1a1a1a', border: '1px solid #333', padding: '12px', borderRadius: '10px', color: '#fff', marginBottom: '8px' };
+const inputSty: any = { width: '100%', background: '#000', border: '1px solid #333', padding: '12px', color: '#fff', borderRadius: '10px' };
+const saveBtn: any = { background: '#eab308', color: '#000', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold' };
+        
