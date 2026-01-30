@@ -6,16 +6,15 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     const data = await request.json();
-    
-    // Chỉ lấy những gì Schema cho phép: username, display_name, bio, avatar_url, cover_url
     const { username, display_name, bio, avatar_url, cover_url } = data;
 
     if (!username) {
-      return NextResponse.json({ success: false, error: "Thiếu Username" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Missing username" }, { status: 400 });
     }
 
-    const updatedUser = await (User as any).findOneAndUpdate(
-      { username: username }, 
+    // Cập nhật hoặc tạo mới dựa trên username
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
       { 
         $set: { 
           ...(display_name && { display_name }),
@@ -27,9 +26,9 @@ export async function POST(request: Request) {
       { new: true, upsert: true }
     );
 
-    return NextResponse.json({ success: true, data: updatedUser });
+    return NextResponse.json({ success: true, user: updatedUser });
   } catch (error: any) {
-    console.error("Lỗi API:", error.message);
+    console.error("Backend Error:", error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
