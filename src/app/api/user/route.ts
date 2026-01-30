@@ -1,5 +1,5 @@
-import connectDB from "@/lib/mongodb";
-import User from "@/models/User";
+import connectDB from "../../lib/mongodb";
+import User from "../../models/User";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     const { pi_id, display_name, bio, avatar_url, cover_url } = data;
 
-    // Tìm theo username (DANG21986) và cập nhật
+    // Tìm theo username và cập nhật
     const updatedUser = await User.findOneAndUpdate(
       { username: pi_id }, 
       { 
@@ -19,12 +19,12 @@ export async function POST(request: Request) {
           ...(cover_url && { cover_url })
         } 
       },
-      { new: true, upsert: true } // Nếu chưa có thì tạo mới luôn
+      { new: true, upsert: true }
     );
 
     return NextResponse.json({ success: true, user: updatedUser });
   } catch (error) {
+    console.error("Lỗi API User:", error);
     return NextResponse.json({ success: false, error: "Lỗi lưu DB" }, { status: 500 });
   }
 }
-
