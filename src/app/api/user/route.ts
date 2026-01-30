@@ -1,5 +1,5 @@
-import connectDB from "../../lib/mongodb";
-import User from "../../models/User";
+import connectDB from "../../../lib/mongodb";
+import User from "../../../models/User";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     const { pi_id, display_name, bio, avatar_url, cover_url } = data;
 
-    // Tìm theo username và cập nhật
+    // Tìm theo username (ví dụ: DANG21986) và cập nhật hoặc tạo mới
     const updatedUser = await User.findOneAndUpdate(
       { username: pi_id }, 
       { 
